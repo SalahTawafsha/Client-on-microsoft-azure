@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module async_azure_client</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">async_azure_client</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:d%3A%5Cbzu%5Ctraining%5Ctraining_salah_tawafsha%5Cazure%20api%5Csolution%5Csolution%5Casync_azure_client.py">d:\bzu\training\training_salah_tawafsha\azure api\solution\solution\async_azure_client.py</a></td></tr></table>
+    <p><span class="code">Async&nbsp;Azure&nbsp;Client&nbsp;module.</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="json.html">json</a><br>
+</td><td class="multicolumn"><a href="telebot.html">telebot</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="builtins.html#object">builtins.object</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="async_azure_client.html#AsyncAzureClient">AsyncAzureClient</a>
+</dt></dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="AsyncAzureClient">class <strong>AsyncAzureClient</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#AsyncAzureClient">AsyncAzureClient</a>(settings:&nbsp;dict&nbsp;=&nbsp;None)&nbsp;-&amp;gt;&nbsp;None<br>
+&nbsp;<br>
+Async&nbsp;Azure&nbsp;Client&nbsp;class.<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="AsyncAzureClient-__init__"><strong>__init__</strong></a>(self, settings: dict = None) -&gt; None</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-close"><strong>close</strong></a>(self)</dt><dd><span class="code">Close&nbsp;connection&nbsp;to&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-create_project"><strong>create_project</strong></a>(self, name: str, description: str)</dt><dd><span class="code">Create&nbsp;project&nbsp;on&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-create_work_item"><strong>create_work_item</strong></a>(self, project_id: str, work_item_type: str, work_item_value: str)</dt><dd><span class="code">Create&nbsp;work&nbsp;item&nbsp;on&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-delete_project"><strong>delete_project</strong></a>(self, project_name: str)</dt><dd><span class="code">Delete&nbsp;project&nbsp;from&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-delete_work_item"><strong>delete_work_item</strong></a>(self, project_name: str, work_item_title: str)</dt><dd><span class="code">Delete&nbsp;work&nbsp;item&nbsp;on&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-get_project"><strong>get_project</strong></a>(self, project_name: str)</dt><dd><span class="code">Get&nbsp;project&nbsp;info&nbsp;from&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-get_work_item"><strong>get_work_item</strong></a>(self, project_name: str, work_item_title: str)</dt><dd><span class="code">Get&nbsp;work&nbsp;item&nbsp;from&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-list_projects"><strong>list_projects</strong></a>(self) -&gt; solution.data_classes.data_classes.Success | solution.data_classes.data_classes.Error</dt><dd><span class="code">List&nbsp;all&nbsp;projects&nbsp;on&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-list_work_items"><strong>list_work_items</strong></a>(self, project_name: str)</dt><dd><span class="code">List&nbsp;work&nbsp;items&nbsp;on&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<dl><dt>async <a name="AsyncAzureClient-update_work_item"><strong>update_work_item</strong></a>(self, project_name: str, work_item_title, new_work_item_title: str)</dt><dd><span class="code">Update&nbsp;work&nbsp;item&nbsp;on&nbsp;Azure&nbsp;DevOps&nbsp;organization.</span></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</span></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>
