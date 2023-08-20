@@ -20,5 +20,3 @@ class Error:
 class Settings:
     token: str = None
     organization: str = None
-    telegram_token: str = None
-    telegram_chat_id: str = None

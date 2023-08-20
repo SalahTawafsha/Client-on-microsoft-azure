@@ -5,6 +5,7 @@ import json
 from solution.data_classes.data_classes import Success
 from solution.solution.sync_azure_client import SyncAzureClient
 from solution.solution.async_azure_client import AsyncAzureClient
+from typing import Union
 
 
 def print_project_choices():
@@ -29,139 +30,8 @@ def print_work_item_choices(project_name: str):
     print("6. Return to main menu.")
 
 
-def sync_work_item_operations(client: SyncAzureClient, project_name: str, selected_project_id: str):
-    """List all work item operations for sync client."""
-    while True:
-        print_work_item_choices(project_name)
-        project_choice = input("Enter your choice: ").strip()
-        match project_choice:
-            case "1":
-                work_item_title = input("Enter new work item title: ").strip()
-                work_item_type = input("Enter new work item type: ").strip()
-                work_item_response = client.create_work_item(selected_project_id,
-                                                             work_item_type, work_item_title)
-
-                print(work_item_response.message)
-            case "2":
-                work_item_response = client.list_work_items(project_name)
-
-                if isinstance(work_item_response, Success):
-                    if len(work_item_response.response) == 0:
-                        print("No work items found.")
-                        continue
-
-                    print("---------------------------------------------")
-                    print("\t%-15s: %s" % ("Work Item Type", "Work Item Title"))
-                    print("---------------------------------------------")
-                    for work_item in work_item_response.response.values():
-                        print("\t%-15s: %-30s" % (
-                            work_item["type"], work_item["title"]))
-                else:
-                    print(work_item_response.message)
-            case "3":
-                work_item_title = input("Enter work item title to update title: ").strip()
-                get_work_item_response = client.get_work_item(project_name, work_item_title)
-
-                if get_work_item_response.message != "Work item found.":
-                    print(get_work_item_response.message)
-                    continue
-
-                new_work_item_title = input("Enter new work item title: ").strip()
-                work_item_response = client.update_work_item(project_name,
-                                                             work_item_title, new_work_item_title)
-                print(work_item_response.message)
-            case "4":
-                work_item_title = input("Enter work item title to delete: ").strip()
-                work_item_response = client.delete_work_item(project_name, work_item_title)
-
-                print(work_item_response.message)
-            case "5":
-                work_item_title = input("Enter work item title to get it's info: ").strip()
-                work_item_response = client.get_work_item(project_name, work_item_title)
-
-                if isinstance(work_item_response, Success):
-                    result = work_item_response.response
-                    print(f"Work item '{result['title']}' details:")
-                    print(f"\tid: {result['id']}")
-                    print(f"\ttype: {result['type']}")
-                    print(f"\tstate: {result['state']}")
-                else:
-                    print(work_item_response.message)
-
-            case "6":
-                return
-            case _:
-                print("Invalid choice. Please try again.")
-        print("------------------------------------------------------------")
-
-
-def sync_list():
-    """List all project operations for sync client."""
-
-    try:
-        client = SyncAzureClient()
-    except json.decoder.JSONDecodeError:
-        print("Error occurred while reading settings.init file.")
-        print("it's must be in json format.")
-        return
-
-    while True:
-        print_project_choices()
-        choice = input("Enter your choice: ").strip()
-
-        match choice:
-            case "1":
-                name = input("Enter Project Name: ").strip()
-                get_project_response = client.get_project(name)
-
-                if get_project_response.message == "Project found.":
-                    print("Project already exists.")
-                    continue
-
-                description = input("Enter Project Description: ").strip()
-                response = client.create_project(name, description)
-
-                print(response.message)
-
-            case "2":
-                response = client.list_projects()
-
-                if isinstance(response, Success):
-                    if len(response.response) == 0:
-                        print("No projects found.")
-                        continue
-
-                    print("Projects Names:")
-                    for key, value in response.response.items():
-                        print(f'\t{key}. {value}')
-                else:
-                    print(response.message)
-
-            case "3":
-                project_name = input("Enter Project Name to delete it: ").strip()
-                response = client.delete_project(project_name)
-                print(response.message)
-
-            case "4":
-                project_name = input("Enter Project Name: ").strip()
-                response = client.get_project(project_name)
-
-                if isinstance(response, Success):
-                    project_id = response.response["id"]
-
-                    sync_work_item_operations(client, project_name, project_id)
-
-                else:
-                    print(response.message)
-            case "5":
-                client.close()
-                break
-            case _:
-                print("Invalid choice. Please try again.")
-
-
-async def async_work_item_operations(client: AsyncAzureClient,
-                                     project_name: str, selected_project_id: str):
+async def work_item_operations(flag: bool, client: Union[AsyncAzureClient, SyncAzureClient],
+                               project_name: str, selected_project_id: str):
     """ List all work item operations for async client. """
     while True:
         print_work_item_choices(project_name)
@@ -170,12 +40,19 @@ async def async_work_item_operations(client: AsyncAzureClient,
             case "1":
                 work_item_title = input("Enter new work item title: ").strip()
                 work_item_type = input("Enter new work item type: ").strip()
-                work_item_response = await client.create_work_item(selected_project_id,
-                                                                   work_item_type, work_item_title)
+                if flag:
+                    work_item_response = await client.create_work_item(selected_project_id,
+                                                                       work_item_type, work_item_title)
+                else:
+                    work_item_response = client.create_work_item(selected_project_id,
+                                                                 work_item_type, work_item_title)
 
                 print(work_item_response.message)
             case "2":
-                work_item_response = await client.list_work_items(project_name)
+                if flag:
+                    work_item_response = await client.list_work_items(project_name)
+                else:
+                    work_item_response = client.list_work_items(project_name)
 
                 if isinstance(work_item_response, Success):
                     if len(work_item_response.response) == 0:
@@ -192,25 +69,41 @@ async def async_work_item_operations(client: AsyncAzureClient,
                     print(work_item_response.message)
             case "3":
                 work_item_title = input("Enter work item title to update title: ").strip()
-                get_work_item_response = await client.get_work_item(project_name, work_item_title)
+
+                if flag:
+                    get_work_item_response = await client.get_work_item(project_name, work_item_title)
+                else:
+                    get_work_item_response = client.get_work_item(project_name, work_item_title)
 
                 if get_work_item_response.message != "Work item found.":
                     print(get_work_item_response.message)
                     continue
 
                 new_work_item_title = input("Enter new work item title: ").strip()
-                work_item_response = await client.update_work_item(project_name, work_item_title,
-                                                                   new_work_item_title)
+                if flag:
+                    work_item_response = await client.update_work_item(project_name, work_item_title,
+                                                                       new_work_item_title)
+                else:
+                    work_item_response = client.update_work_item(project_name, work_item_title,
+                                                                 new_work_item_title)
                 print(work_item_response.message)
 
             case "4":
                 work_item_title = input("Enter work item title to delete: ").strip()
-                work_item_response = await client.delete_work_item(project_name, work_item_title)
+
+                if flag:
+                    work_item_response = await client.delete_work_item(project_name, work_item_title)
+                else:
+                    work_item_response = client.delete_work_item(project_name, work_item_title)
 
                 print(work_item_response.message)
             case "5":
                 work_item_title = input("Enter work item title to get it's info: ").strip()
-                work_item_response = await client.get_work_item(project_name, work_item_title)
+
+                if flag:
+                    work_item_response = await client.get_work_item(project_name, work_item_title)
+                else:
+                    work_item_response = client.get_work_item(project_name, work_item_title)
 
                 if isinstance(work_item_response, Success):
                     result = work_item_response.response
@@ -228,10 +121,13 @@ async def async_work_item_operations(client: AsyncAzureClient,
         print("------------------------------------------------------------")
 
 
-async def async_list():
+async def project_operations(flag: bool = False):
     """List all project operations for async client."""
     try:
-        client = AsyncAzureClient()
+        if flag:
+            client = AsyncAzureClient()
+        else:
+            client = SyncAzureClient()
     except json.decoder.JSONDecodeError:
         print("Error occurred while reading settings.init file.")
         print("it's must be in json format.")
@@ -244,18 +140,28 @@ async def async_list():
         match choice:
             case "1":
                 name = input("Enter Project Name: ").strip()
-                get_response = await client.get_project(name)
+                if flag:
+                    get_response = await client.get_project(name)
+                else:
+                    get_response = client.get_project(name)
+
                 if get_response.message == "Project found.":
                     print("Project already exists.")
                     continue
 
                 description = input("Enter Project Description: ").strip()
-                response = await client.create_project(name, description)
+                if flag:
+                    response = await client.create_project(name, description)
+                else:
+                    response = client.create_project(name, description)
 
                 print(response.message)
 
             case "2":
-                response = await client.list_projects()
+                if flag:
+                    response = await client.list_projects()
+                else:
+                    response = client.list_projects()
 
                 if isinstance(response, Success):
                     if len(response.response) == 0:
@@ -270,22 +176,33 @@ async def async_list():
 
             case "3":
                 project_name = input("Enter Project Name to delete it: ").strip()
-                response = await client.delete_project(project_name)
+
+                if flag:
+                    response = await client.delete_project(project_name)
+                else:
+                    response = client.delete_project(project_name)
+
                 print(response.message)
 
             case "4":
                 project_name = input("Enter Project Name: ").strip()
-                response = await client.get_project(project_name)
+                if flag:
+                    response = await client.get_project(project_name)
+                else:
+                    response = client.get_project(project_name)
 
                 if isinstance(response, Success):
                     project_id = response.response["id"]
 
-                    await async_work_item_operations(client, project_name, project_id)
+                    await work_item_operations(flag, client, project_name, project_id)
 
                 else:
                     print(response.message)
             case "5":
-                await client.close()
+                if flag:
+                    await client.close()
+                else:
+                    client.close()
                 break
             case _:
                 print("Invalid choice. Please try again.")
@@ -306,9 +223,9 @@ if __name__ == '__main__':
             client_type = input("Enter your choice: ").strip()
 
         if client_type == "1":
-            sync_list()
+            asyncio.run(project_operations(False))
         elif client_type == "2":
-            asyncio.run(async_list())
+            asyncio.run(project_operations(True))
         else:
             print("Thank you for using Azure API!")
             break
