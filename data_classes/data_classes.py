@@ -17,6 +17,12 @@ class Error:
 
 
 @dataclass
-class Settings:
+class AzureSettings:
     token: str = None
     organization: str = None
+
+
+@dataclass
+class TelegramBotSettings:
+    token: str = None
+    chat_id: str = None

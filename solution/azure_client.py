@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from solution.solution.telegram_bot import TelegramBot
-from solution.data_classes.data_classes import Success, Error, Settings
+from solution.data_classes.data_classes import Success, Error, AzureSettings
 from configparser import ConfigParser
 
 
@@ -12,7 +12,7 @@ class AzureClient(ABC):
     NON_AUTHORIZED_STATUS_CODE = 401
     NOT_FOUND_STATUS_CODE = 404
 
-    _END_POINTS = {
+    END_POINTS = {
         "create_project": "/_apis/projects?api-version=7.0",
         "list_projects": "/_apis/projects?api-version=7.0",
         "delete_project": "/_apis/projects/{project_id}?api-version=7.0",
@@ -24,7 +24,7 @@ class AzureClient(ABC):
         "get_work_item": "/{project_name}/_apis/wit/workitems/{work_item_id}?api-version=7.0"
     }
 
-    def __init__(self, settings: dict = None):
+    def __init__(self, settings: dict = None, telegram_bot: TelegramBot = None):
         if settings is None:
             settings = {}
         else:
@@ -33,12 +33,19 @@ class AzureClient(ABC):
 
         config = ConfigParser()
         config.read("../solution/settings.init")
-        self.settings = Settings(config["DEFAULT"]["token"], config["DEFAULT"]["organization"])
+
+        if "DEFAULT" in config and "token" in config["DEFAULT"] and "organization" in config["DEFAULT"]:
+            self.settings = AzureSettings(config["DEFAULT"]["token"], config["DEFAULT"]["organization"])
 
         if settings.get("token"):
             self.settings.token = settings["token"]
         if settings.get("organization"):
             self.settings.organization = settings["organization"]
+
+        if not self.settings.token or not self.settings.organization:
+            raise ValueError("Token and organization must be specified.")
+
+        self.telegram_bot = telegram_bot
 
         self.headers = {
             "Accept": "application/json",
@@ -91,7 +98,7 @@ class AzureClient(ABC):
     def close(self):
         pass
 
-    def _handle_create_project_response(self, response, name):
+    def handle_create_project_response(self, response, name: str):
         if response.status_code == AzureClient.ACCEPTED_STATUS_CODE:
             json_response = response.json()
 
@@ -101,8 +108,9 @@ class AzureClient(ABC):
                 "message": f"Project '{name}' created successfully."
             }
 
-            TelegramBot.get_instance().send_message(f"New project '{name}' created on your Azure organization "
-                                                    f"'{self.settings.organization}'.")
+            if self.telegram_bot:
+                self.telegram_bot.send_message(f"New project '{name}' created on your Azure organization "
+                                               f"'{self.settings.organization}'.")
 
             return Success(message=f"Project '{name}' created successfully.", response=response,
                            status_code=AzureClient.ACCEPTED_STATUS_CODE)
@@ -116,8 +124,8 @@ class AzureClient(ABC):
         return Error(message=f"Error occurred with code {response.status_code}.",
                      status_code=response.status_code)
 
-    @staticmethod
-    def _handle_list_projects_response(get_response):
+    @classmethod
+    def handle_list_projects_response(cls, get_response):
         if get_response.status_code == AzureClient.OK_STATUS_CODE:
             json_response = get_response.json()
             if json_response["count"] != 0:
@@ -137,11 +145,12 @@ class AzureClient(ABC):
         return Error(message=f"Error occurred with code {get_response.status_code}.",
                      status_code=get_response.status_code)
 
-    def _handle_delete_project_response(self, response, project_name):
+    def handle_delete_project_response(self, response, project_name):
         if response.status_code == AzureClient.ACCEPTED_STATUS_CODE:
-            TelegramBot.get_instance().send_message(
-                f"Project '{project_name}' deleted from your Azure organization "
-                f"'{self.settings.organization}'.")
+            if self.telegram_bot:
+                self.telegram_bot.send_message(
+                    f"Project '{project_name}' deleted from your Azure organization "
+                    f"'{self.settings.organization}'.")
             return Success(message=f"Project '{project_name}' deleted successfully.",
                            response={"message": f"Project '{project_name}' deleted successfully.",
                                      "name": project_name},
@@ -153,8 +162,8 @@ class AzureClient(ABC):
         return Error(message=f"Error occurred with code {response.status_code}."
                              f"", status_code=response.status_code)
 
-    @staticmethod
-    def _handle_get_project_response(response, project_name):
+    @classmethod
+    def handle_get_project_response(cls, response, project_name):
         if response.status_code == AzureClient.OK_STATUS_CODE:
             json_response = response.json()
             return Success("Project found.", {"id": json_response["id"],
@@ -171,16 +180,17 @@ class AzureClient(ABC):
         return Error(f"Error occurred with code {response.status_code}.",
                      status_code=response.status_code)
 
-    def _handle_create_work_item_response(self, response, project_id, work_item_type, work_item_value):
+    def handle_create_work_item_response(self, response, project_id, work_item_type, work_item_value):
         if response.status_code == AzureClient.OK_STATUS_CODE:
             json_response = response.json()
             result_response = {"title": json_response["fields"]["System.Title"],
                                "id": json_response["id"],
                                "type": json_response["fields"]["System.WorkItemType"]}
 
-            TelegramBot.get_instance().send_message(
-                f"Work item '{work_item_value}' created on your Azure organization "
-                f"'{self.settings.organization}'.")
+            if self.telegram_bot:
+                self.telegram_bot.send_message(
+                    f"Work item '{work_item_value}' created on your Azure organization "
+                    f"'{self.settings.organization}'.")
 
             return Success(message=f"Work item '{work_item_value}' created successfully.",
                            response=result_response,
@@ -201,8 +211,8 @@ class AzureClient(ABC):
         return Error(message=f"Error occurred with code {response.status_code}.",
                      status_code=response.status_code)
 
-    @staticmethod
-    def _handle_falied_list_work_items_response(response, project_name):
+    @classmethod
+    def handle_falied_list_work_items_response(cls, response, project_name):
         if response.status_code in AzureClient.NON_AUTHORIZED_STATUS_CODES:
             return Error(message="you have authorization problem, recheck your token.",
                          status_code=response.status_code)
@@ -213,11 +223,12 @@ class AzureClient(ABC):
         return Error(message=f"Error occurred with code {response.status_code}.",
                      status_code=response.status_code)
 
-    def _handle_update_work_item_response(self, response, work_item_title, new_work_item_title):
+    def handle_update_work_item_response(self, response, work_item_title, new_work_item_title):
         if response.status_code == AzureClient.OK_STATUS_CODE:
-            TelegramBot.get_instance().send_message(
-                f"Work item '{work_item_title}' updated to '{new_work_item_title}'"
-                f" in your Azure organization '{self.settings.organization}'.")
+            if self.telegram_bot:
+                self.telegram_bot.send_message(
+                    f"Work item '{work_item_title}' updated to '{new_work_item_title}'"
+                    f" in your Azure organization '{self.settings.organization}'.")
             return Success(message=f"Work item '{work_item_title}' updated to '{new_work_item_title}'.",
                            response={"message": f"Work item '{work_item_title}' updated to '{new_work_item_title}'."},
                            status_code=AzureClient.OK_STATUS_CODE)
@@ -225,11 +236,13 @@ class AzureClient(ABC):
         return Error(message=f"Error occurred with code {response.status_code}.",
                      status_code=response.status_code)
 
-    def _handle_delete_work_item_response(self, response, project_name, work_item_title):
+    def handle_delete_work_item_response(self, response, project_name, work_item_title):
         if response.status_code == AzureClient.OK_STATUS_CODE:
-            TelegramBot.get_instance().send_message(
-                f"Work item '{work_item_title}' deleted from your Azure organization "
-                f"'{self.settings.organization}'.")
+
+            if self.telegram_bot:
+                self.telegram_bot.send_message(
+                    f"Work item '{work_item_title}' deleted from your Azure organization "
+                    f"'{self.settings.organization}'.")
 
             return Success(message=f"Work item '{work_item_title}' deleted successfully.",
                            response={"message": f"Work item '{work_item_title}' deleted successfully."},
@@ -244,8 +257,8 @@ class AzureClient(ABC):
         return Error(message=f"Error occurred with code {response.status_code}.",
                      status_code=response.status_code)
 
-    @staticmethod
-    def _handle_get_work_item_response(response):
+    @classmethod
+    def handle_get_work_item_response(cls, response):
         if response.status_code == AzureClient.OK_STATUS_CODE:
             result = response.json()
 
@@ -260,8 +273,8 @@ class AzureClient(ABC):
 
         return Error(f"Error occurred with code {response.status_code}.", response.status_code)
 
-    @staticmethod
-    def _create_project_data(name, description):
+    @classmethod
+    def create_project_data(cls, name, description):
         return {"name": name,
                 "description": description,
                 "visibility": "private",
@@ -270,8 +283,8 @@ class AzureClient(ABC):
                                      {"templateTypeId": "6b724908-ef14-45cf-84f8-768b5384da45"}},
                 "processTemplate": {"templateTypeId": "6b724908-ef14-45cf-84f8-768b5384da45"}}
 
-    @staticmethod
-    def _check_get_project_response(project, project_name):
+    @classmethod
+    def check_get_project_response(cls, project, project_name):
         if project.message == f"Project '{project_name}' not found.":
             return Error(message=f"Project '{project_name}' not found.",
                          status_code=AzureClient.NOT_FOUND_STATUS_CODE)
@@ -285,8 +298,8 @@ class AzureClient(ABC):
 
         return project.response["id"]
 
-    @staticmethod
-    def _create_work_item_data(work_item_value):
+    @classmethod
+    def create_work_item_data(cls, work_item_value):
         return [
             {
                 "op": "add",
@@ -296,14 +309,14 @@ class AzureClient(ABC):
             }
         ]
 
-    @staticmethod
-    def _list_work_items_body(project_name):
+    @classmethod
+    def list_work_items_body(cls, project_name):
         return {
             "query": f"Select * From WorkItems where [System.TeamProject] = '{project_name}'"
         }
 
-    @staticmethod
-    def _update_work_item_body(work_item, work_item_title, new_work_item_title):
+    @classmethod
+    def update_work_item_body(cls, work_item, work_item_title, new_work_item_title):
         if work_item == "not found.":
             return Error(message=f"Work item '{work_item_title}' not found.",
                          status_code=AzureClient.NOT_FOUND_STATUS_CODE)
@@ -321,8 +334,8 @@ class AzureClient(ABC):
             }
         ]
 
-    @staticmethod
-    def _delete_work_item_body(work_item_id, work_item_title):
+    @classmethod
+    def delete_work_item_body(cls, work_item_id, work_item_title):
         if work_item_id == "not found.":
             return Error(message=f"Work item '{work_item_title}' not found.",
                          status_code=AzureClient.NOT_FOUND_STATUS_CODE)

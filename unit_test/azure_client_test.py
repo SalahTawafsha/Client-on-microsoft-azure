@@ -4,6 +4,8 @@ from solution.solution.azure_client import AzureClient
 import random
 import string
 
+from solution.solution.telegram_bot import TelegramBot
+
 
 @pytest.fixture(scope="module")
 def client():
@@ -11,7 +13,7 @@ def client():
         "token": "wnvfg4foetsqbr5h7vbgjrvwbe4mveaxv7nv5rzfwqdfpo3wrfxq",
         "organization": "salaht321-testing",
     }
-    client: SyncAzureClient = SyncAzureClient(settings)
+    client: SyncAzureClient = SyncAzureClient(settings, TelegramBot())
     yield client
     client.close()
 

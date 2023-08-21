@@ -1,8 +1,12 @@
+import asyncio
+
 import pytest
 from solution.solution.async_azure_client import AsyncAzureClient
 from solution.solution.azure_client import AzureClient
 import random
 import string
+
+from solution.solution.telegram_bot import TelegramBot
 
 
 @pytest.fixture(scope="module")
@@ -15,14 +19,21 @@ def random_name():
 EMPTY_LEN: int = 0
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def get_client():
     settings = {
         "token": "wnvfg4foetsqbr5h7vbgjrvwbe4mveaxv7nv5rzfwqdfpo3wrfxq",
         "organization": "salaht321-testing",
     }
-    client = AsyncAzureClient(settings)
+    client = AsyncAzureClient(settings, TelegramBot())
     return client
+
+
+@pytest.fixture(scope="module")
+def event_loop():
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.mark.asyncio
