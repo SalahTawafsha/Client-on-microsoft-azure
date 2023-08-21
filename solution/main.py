@@ -159,11 +159,10 @@ def handle_response(response, choice):
 
 
 async def pick_async():
+    client = AsyncAzureClient(telegram_bot=TelegramBot())
     while True:
         print_project_choices()
         choice = input("Enter your choice: ").strip()
-
-        client = AsyncAzureClient(telegram_bot=TelegramBot())
 
         if choice.isnumeric() and 0 < int(choice) < 5:
             response = await get_request(choice, client)
@@ -193,11 +192,10 @@ async def pick_async():
 
 
 def pick_sync():
+    client = SyncAzureClient(telegram_bot=TelegramBot())
     while True:
         print_project_choices()
         choice = input("Enter your choice: ").strip()
-
-        client = SyncAzureClient(telegram_bot=TelegramBot())
 
         if choice.isnumeric() and 0 < int(choice) < 5:
             response = get_request(choice, client)
@@ -251,6 +249,6 @@ if __name__ == "__main__":
             project_operations(False)
         elif client_type == "2":
             project_operations(True)
-
         else:
             print("Thank you for using Azure API!")
+            break
