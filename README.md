@@ -38,6 +38,8 @@ python -m pytest .\solution\unit_test\
 git clone https://github.com/SalahTawafsha/Client-on-microsoft-azure.git
 pip install -r requirements.txt
 ```
+- set your tokens and info in settings.init file
+- set your token and organization of testing in files of unit_test folder (where you have ToDo)
 
 ## Usage
 

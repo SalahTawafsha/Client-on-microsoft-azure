@@ -23,7 +23,7 @@ EMPTY_LEN: int = 0
 def get_client():
     settings = {
         "token": "{your testing token here}",  # ToDo: replace with your testing token
-        "organization": "salaht321-testing",
+        "organization": "{your organization name here}",  # ToDo: replace with your organization name
     }
     client = AsyncAzureClient(settings, TelegramBot())
     return client

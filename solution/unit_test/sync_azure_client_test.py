@@ -11,7 +11,7 @@ from solution.telegram_bot import TelegramBot
 def client():
     settings = {
         "token": "{your testing token here}",  # ToDo: replace with your testing token
-        "organization": "salaht321-testing",
+        "organization": "{your organization name here}",  # ToDo: replace with your organization name
     }
     client: SyncAzureClient = SyncAzureClient(settings, TelegramBot())
     yield client
