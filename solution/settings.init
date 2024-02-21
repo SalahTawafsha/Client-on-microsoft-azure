@@ -1,5 +1,5 @@
 [DEFAULT]
-token = xem42qtnkiobxaxookczdlr3ps65hxdgyxbr7bjgwyfccrulb6rq
-organization = salaht321
-telegram_bot_token = 6480381796:AAGW0Pvu-zf1j1I7p6OOpjZshsvSQ17oZfA
-telegram_chat_id = 807894787
+token = YourToken
+organization = YourOrganization
+telegram_bot_token = YourTelegramBotToken
+telegram_chat_id = YourTelegramChatId

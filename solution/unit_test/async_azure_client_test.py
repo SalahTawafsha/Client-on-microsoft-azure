@@ -5,7 +5,7 @@ import random
 import string
 
 from solution.models.async_azure_client import AsyncAzureClient
-from solution.models.azure_client import AzureClient
+from solution.models.abstract_azure_client import AzureClient
 from solution.telegram_bot import TelegramBot
 
 
@@ -22,7 +22,7 @@ EMPTY_LEN: int = 0
 @pytest.fixture(scope="module")
 def get_client():
     settings = {
-        "token": "xem42qtnkiobxaxookczdlr3ps65hxdgyxbr7bjgwyfccrulb6rq",
+        "token": "{your testing token here}",  # ToDo: replace with your testing token
         "organization": "salaht321-testing",
     }
     client = AsyncAzureClient(settings, TelegramBot())

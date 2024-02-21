@@ -1,7 +1,7 @@
 """ Async Azure Client module. """
 from httpx import AsyncClient, BasicAuth
 from solution.models.data_classes.data_classes import Success, Error
-from solution.models.azure_client import AzureClient
+from solution.models.abstract_azure_client import AzureClient
 from solution.telegram_bot import TelegramBot
 
 

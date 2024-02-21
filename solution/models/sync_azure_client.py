@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from httpx import Client, BasicAuth
 
-from solution.models.azure_client import AzureClient
+from solution.models.abstract_azure_client import AzureClient
 from solution.models.data_classes.data_classes import Success, Error
 from solution.telegram_bot import TelegramBot
 

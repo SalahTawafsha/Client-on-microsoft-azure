@@ -2,7 +2,7 @@ import pytest
 import random
 import string
 
-from solution.models.azure_client import AzureClient
+from solution.models.abstract_azure_client import AzureClient
 from solution.models.sync_azure_client import SyncAzureClient
 from solution.telegram_bot import TelegramBot
 
@@ -10,7 +10,7 @@ from solution.telegram_bot import TelegramBot
 @pytest.fixture(scope="module")
 def client():
     settings = {
-        "token": "wnvfg4foetsqbr5h7vbgjrvwbe4mveaxv7nv5rzfwqdfpo3wrfxq",
+        "token": "{your testing token here}",  # ToDo: replace with your testing token
         "organization": "salaht321-testing",
     }
     client: SyncAzureClient = SyncAzureClient(settings, TelegramBot())
@@ -115,7 +115,6 @@ def test_create_work_item_with_not_exist_type(client, random_name):
     assert response.message == "Work item type 'not exist type' does not exist in the project."
 
 
-@pytest.mark.asyncio
 def test_list_work_items(client):
     """ Test list work items """
     response = client.list_work_items("salaht321")
