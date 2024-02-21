@@ -1,6 +1,9 @@
+import os
 from abc import ABC, abstractmethod
-from solution.solution.telegram_bot import TelegramBot
-from solution.data_classes.data_classes import Success, Error, AzureSettings
+
+from solution.models.data_classes.data_classes import Success, Error, AzureSettings
+from solution.telegram_bot import TelegramBot
+
 from configparser import ConfigParser
 
 
@@ -32,7 +35,7 @@ class AzureClient(ABC):
                 raise TypeError("Settings must be dictionary.")
 
         config = ConfigParser()
-        config.read("../solution/settings.init")
+        config.read(os.path.dirname(__file__) + "\\..\\settings.init")
 
         if "DEFAULT" in config and "token" in config["DEFAULT"] and "organization" in config["DEFAULT"]:
             self.settings = AzureSettings(config["DEFAULT"]["token"], config["DEFAULT"]["organization"])

@@ -2,10 +2,11 @@
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
 
-from solution.solution.azure_client import AzureClient
 from httpx import Client, BasicAuth
-from solution.data_classes.data_classes import Success, Error
-from solution.solution.telegram_bot import TelegramBot
+
+from solution.models.azure_client import AzureClient
+from solution.models.data_classes.data_classes import Success, Error
+from solution.telegram_bot import TelegramBot
 
 
 class SyncAzureClient(AzureClient):

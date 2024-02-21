@@ -1,14 +1,16 @@
+import os.path
+
 import httpx
 from configparser import ConfigParser
 
-from solution.data_classes.data_classes import Success, Error, TelegramBotSettings
+from solution.models.data_classes.data_classes import Success, Error, TelegramBotSettings
 
 
 class TelegramBot:
 
     def __init__(self, settings: dict = None):
         config = ConfigParser()
-        config.read("../solution/settings.init")
+        config.read(os.path.dirname(__file__) + "\\settings.init")
 
         if "telegram_bot_token" in config["DEFAULT"] and \
                 "telegram_chat_id" in config["DEFAULT"]:

@@ -1,12 +1,12 @@
 """Main module for the solution that has command line
  interface for the user to interact with the Azure organization. """
 import asyncio
-from solution.data_classes.data_classes import Success
-from solution.solution.sync_azure_client import SyncAzureClient
-from solution.solution.async_azure_client import AsyncAzureClient
+from solution.models.data_classes.data_classes import Success
+from solution.models.sync_azure_client import SyncAzureClient
+from solution.models.async_azure_client import AsyncAzureClient
 from typing import Union
 
-from solution.solution.telegram_bot import TelegramBot
+from solution.telegram_bot import TelegramBot
 
 
 def print_project_choices():
